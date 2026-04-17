@@ -1,1604 +1,272 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Relatório QA — Git Workflow & Boas Práticas</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=DM+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relatório de Incidentes — Módulo Admin · Redes Tecnologia e Serviços</title>
 <style>
-  :root {
-    --blue-900: #0d1b2a;
-    --blue-800: #1a2e46;
-    --blue-700: #1e3a5f;
-    --blue-600: #1d4ed8;
-    --blue-400: #3b82f6;
-    --blue-200: #bfdbfe;
-    --blue-100: #dbeafe;
-    --blue-50:  #eff6ff;
-    --teal:     #0d9488;
-    --teal-light: #ccfbf1;
-    --amber:    #d97706;
-    --amber-light: #fef3c7;
-    --red:      #dc2626;
-    --red-light: #fee2e2;
-    --green:    #16a34a;
-    --green-light: #dcfce7;
-    --slate-700: #334155;
-    --slate-500: #64748b;
-    --slate-300: #cbd5e1;
-    --slate-100: #f1f5f9;
-    --slate-50:  #f8fafc;
-    --white: #ffffff;
-    --text-primary: #0d1b2a;
-    --text-secondary: #334155;
-    --text-muted: #64748b;
-    --radius: 10px;
-    --radius-sm: 6px;
-    --shadow-card: 0 1px 4px rgba(13,27,42,.07), 0 4px 16px rgba(13,27,42,.06);
-    --shadow-elevated: 0 4px 24px rgba(13,27,42,.12);
-  }
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',Segoe UI,Arial,sans-serif;background:#F0F4F8;min-height:100vh;padding:32px 16px}
 
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--slate-50);
-    color: var(--text-primary);
-    line-height: 1.65;
-    font-size: 15px;
-  }
+  .page{background:#fff;max-width:960px;margin:0 auto;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.10)}
 
-  /* ─── HEADER ─────────────────────────────────────── */
-  .report-header {
-    background: #2563a8;   /* azul médio do modelo de referência */
-    color: var(--white);
-    padding: 0;
-  }
+  /* HEADER */
+  .header{display:flex;align-items:stretch}
+  .header-logo{background:#2E86C1;padding:22px 30px;display:flex;align-items:center;justify-content:center;min-width:190px;flex-shrink:0}
+  .header-logo img{height:76px;width:auto;display:block}
+  .header-info{padding:22px 28px;border-bottom:3px solid #2E86C1;flex:1;display:flex;flex-direction:column;justify-content:center;gap:8px}
+  .header-title{font-size:22px;font-weight:700;color:#1B4F8A;line-height:1.2}
+  .header-meta{display:flex;gap:6px;flex-wrap:wrap}
+  .meta-pill{font-size:11px;color:#555;background:#F2F5F9;border-radius:20px;padding:3px 11px;border:0.5px solid #DDE4EE;font-weight:500}
 
-  .header-inner {
-    max-width: 960px;
-    margin: 0 auto;
-    padding: 0;
-    display: grid;
-    grid-template-columns: auto 1fr;
-    align-items: stretch;
-  }
+  /* BODY */
+  .body{padding:28px 36px 36px}
 
-  /* Slot da logo — fundo branco igual ao modelo */
-  .logo-slot {
-    background: #2563a8;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px 28px;
-    flex-shrink: 0;
-    min-width: 160px;
-  }
-  .logo-slot img {
-    height: 60px;
-    width: auto;
-    display: block;
-  }
-  /* Fallback placeholder (quando não há img) */
-  .logo-slot svg { opacity: .35; }
-  .logo-slot span {
-    font-size: 11px;
-    font-family: 'IBM Plex Mono', monospace;
-    color: #94a3b8;
-    text-align: center;
-  }
+  /* STAT CARDS */
+  .status-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+  .stat{border-radius:8px;padding:15px 16px;border-top:3px solid}
+  .stat-total{background:#E8F0F9;border-color:#1B4F8A}
+  .stat-s3   {background:#FFF3E0;border-color:#BF5800}
+  .stat-s2   {background:#EDE7F6;border-color:#5B2D8E}
+  .stat-p1   {background:#FDECEA;border-color:#B71C1C}
+  .stat-lbl  {font-size:11px;font-weight:700;margin-bottom:4px;letter-spacing:.3px}
+  .stat-total .stat-lbl{color:#0C447C}
+  .stat-s3    .stat-lbl{color:#BF5800}
+  .stat-s2    .stat-lbl{color:#5B2D8E}
+  .stat-p1    .stat-lbl{color:#B71C1C}
+  .stat-num  {font-size:34px;font-weight:700;line-height:1;margin-bottom:3px}
+  .stat-total .stat-num{color:#1B4F8A}
+  .stat-s3    .stat-num{color:#BF5800}
+  .stat-s2    .stat-num{color:#5B2D8E}
+  .stat-p1    .stat-num{color:#B71C1C}
+  .stat-ids  {font-size:11px;color:#888;font-weight:400}
 
-  .header-meta {
-    padding: 28px 36px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
+  /* PATTERN BOX */
+  .pattern-box{display:flex;margin-bottom:24px;border-radius:8px;overflow:hidden;border:0.5px solid #B5D4F4}
+  .pattern-bar{width:5px;background:#2E86C1;flex-shrink:0}
+  .pattern-body{background:#EAF3FB;padding:13px 18px;flex:1}
+  .pattern-title{font-size:12px;font-weight:700;color:#1B4F8A;margin-bottom:4px}
+  .pattern-text {font-size:12px;color:#333;line-height:1.6}
 
-  .report-title {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: -.2px;
-    line-height: 1.25;
-    margin-bottom: 12px;
-    color: #ffffff;
-  }
+  /* SECTION HEADER */
+  .sec-header{background:#2E86C1;color:#fff;font-size:12px;font-weight:700;padding:9px 14px;border-radius:6px;margin-bottom:14px;letter-spacing:.4px}
 
-  .badges {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 7px;
-  }
+  /* SUMMARY TABLE */
+  .sum-table{width:100%;border-collapse:collapse;margin-bottom:28px;font-size:12px}
+  .sum-table th{background:#1B4F8A;color:#fff;padding:9px 12px;text-align:left;font-weight:600}
+  .sum-table th:first-child{border-radius:4px 0 0 0}
+  .sum-table th:last-child {border-radius:0 4px 0 0}
+  .sum-table td{padding:8px 12px;border-bottom:0.5px solid #EBEBEB}
+  .sum-table tr:nth-child(even) td{background:#F7F9FC}
+  .sum-table tr:last-child td{border-bottom:none}
+  .sev-s3{color:#BF5800;font-weight:600}
+  .sev-s2{color:#5B2D8E;font-weight:600}
+  .pri-p1{color:#B71C1C;font-weight:600}
+  .pri-p2{color:#7A5200;font-weight:600}
+  .st-open{background:#FDECEA;color:#B71C1C;font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px}
 
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 3px 11px;
-    border-radius: 99px;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: .25px;
-    border: 1px solid;
-  }
-  /* badges no header claro — tons sutis sobre azul */
-  .badge-blue  { background: rgba(255,255,255,.15); color: #e0f0ff; border-color: rgba(255,255,255,.3); }
-  .badge-teal  { background: rgba(255,255,255,.12); color: #b2f5ea; border-color: rgba(255,255,255,.25); }
-  .badge-amber { background: rgba(255,255,255,.12); color: #fde68a; border-color: rgba(255,255,255,.25); }
-  .badge-slate { background: rgba(255,255,255,.10); color: #cbd5e1; border-color: rgba(255,255,255,.2); }
+  /* BUG CARDS */
+  .bug-card{border-radius:8px;overflow:hidden;margin-bottom:12px;border:0.5px solid #E0E0E0}
+  .bug-head{display:flex;align-items:stretch}
+  .bug-accent{width:5px;flex-shrink:0}
+  .bug-id{padding:11px 14px;font-size:12px;font-weight:700;min-width:150px;display:flex;align-items:center}
+  .bug-title{padding:11px 12px;font-size:13px;font-weight:600;color:#1A1A1A;flex:1;display:flex;align-items:center;line-height:1.4}
+  .bug-badges{display:flex;gap:6px;padding:11px 14px;align-items:center;flex-shrink:0}
+  .bdg{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap}
+  .bdg-s3{background:#FFF3E0;color:#BF5800}
+  .bdg-s2{background:#EDE7F6;color:#5B2D8E}
+  .bdg-p1{background:#FDECEA;color:#B71C1C}
+  .bdg-p2{background:#FFF8E1;color:#7A5200}
+  .bug-body{display:grid;grid-template-columns:1fr 1fr 230px;background:#fff}
+  .bug-col{padding:11px 14px;border-top:0.5px solid #EBEBEB}
+  .bug-col+.bug-col{border-left:0.5px solid #EBEBEB}
+  .col-lbl{font-size:10px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+  .col-val{font-size:12px;color:#1A1A1A;line-height:1.6}
+  .col-val.mono{font-family:'Courier New',Courier,monospace;font-size:11px;color:#1B4F8A}
+  .rastr-lbl{font-size:10px;color:#999;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;margin-top:10px}
+  .rastr-val{font-size:11px;color:#2E86C1;font-weight:600}
 
-  /* ─── LAYOUT ──────────────────────────────────────── */
-  .content {
-    max-width: 960px;
-    margin: 0 auto;
-    padding: 48px 48px 80px;
-    display: flex;
-    flex-direction: column;
-    gap: 40px;
-  }
+  /* FOOTER */
+  .footer{border-top:0.5px solid #E8E8E8;padding-top:14px;display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+  .footer-txt{font-size:10px;color:#b0b0b0;font-style:italic}
 
-  /* ─── SECTION ─────────────────────────────────────── */
-  .section {
-    background: var(--white);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-card);
-    overflow: hidden;
+  /* PRINT */
+  @media print{
+    body{background:#fff;padding:0}
+    .page{box-shadow:none;border-radius:0;max-width:100%}
+    .bug-card{break-inside:avoid}
+    .status-bar{break-inside:avoid}
   }
-
-  .section-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 20px 28px 18px;
-    border-bottom: 1px solid var(--slate-100);
-    background: var(--white);
-  }
-
-  .section-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    font-size: 16px;
-  }
-  .icon-blue   { background: var(--blue-50);    color: var(--blue-600); }
-  .icon-teal   { background: var(--teal-light); color: var(--teal); }
-  .icon-amber  { background: var(--amber-light);color: var(--amber); }
-  .icon-green  { background: var(--green-light);color: var(--green); }
-  .icon-red    { background: var(--red-light);  color: var(--red); }
-
-  .section-label {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: .8px;
-    font-weight: 700;
-    color: var(--text-muted);
-    line-height: 1;
-    margin-bottom: 2px;
-  }
-  .section-title {
-    font-size: 17px;
-    font-weight: 700;
-    color: var(--text-primary);
-    line-height: 1.2;
-  }
-
-  .section-body {
-    padding: 24px 28px;
-  }
-
-  /* ─── EXECUTIVE SUMMARY ───────────────────────────── */
-  .summary-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
-    margin-bottom: 24px;
-  }
-
-  .summary-card {
-    background: var(--slate-50);
-    border: 1px solid var(--slate-100);
-    border-radius: var(--radius-sm);
-    padding: 16px 18px;
-  }
-  .summary-card-label {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: .6px;
-    font-weight: 700;
-    color: var(--text-muted);
-    margin-bottom: 6px;
-  }
-  .summary-card-value {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--text-primary);
-    font-family: 'IBM Plex Mono', monospace;
-  }
-  .summary-card-desc {
-    font-size: 12px;
-    color: var(--text-muted);
-    margin-top: 3px;
-  }
-
-  .summary-text {
-    color: var(--text-secondary);
-    font-size: 14.5px;
-    line-height: 1.75;
-  }
-
-  .toc {
-    margin-top: 20px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-
-  .toc-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 14px;
-    background: var(--slate-50);
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--slate-100);
-    text-decoration: none;
-    color: var(--text-secondary);
-    font-size: 13px;
-    font-weight: 500;
-    transition: background .15s, border-color .15s;
-  }
-  .toc-item:hover { background: var(--blue-50); border-color: var(--blue-200); color: var(--blue-600); }
-  .toc-num {
-    width: 22px; height: 22px;
-    background: var(--blue-600);
-    color: white;
-    border-radius: 50%;
-    font-size: 10px;
-    font-weight: 700;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    font-family: 'IBM Plex Mono', monospace;
-  }
-
-  /* ─── GIT FLOW DIAGRAM ────────────────────────────── */
-  .git-flow {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-  }
-
-  .branch-row {
-    display: grid;
-    grid-template-columns: 160px 1fr;
-    gap: 0;
-    align-items: stretch;
-  }
-
-  .branch-label {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding: 0 16px 0 0;
-    border-right: 2px solid var(--slate-100);
-    min-height: 64px;
-  }
-
-  .branch-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 5px 12px;
-    border-radius: 99px;
-    font-size: 12px;
-    font-weight: 700;
-    font-family: 'IBM Plex Mono', monospace;
-    white-space: nowrap;
-  }
-  .branch-feat    { background: var(--blue-50);    color: var(--blue-600);  border: 1.5px solid var(--blue-200); }
-  .branch-develop { background: var(--teal-light); color: var(--teal);      border: 1.5px solid #99f6e4; }
-  .branch-staging { background: var(--amber-light);color: var(--amber);     border: 1.5px solid #fde68a; }
-  .branch-main    { background: var(--green-light);color: var(--green);     border: 1.5px solid #86efac; }
-
-  .branch-content {
-    padding: 14px 0 14px 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-
-  .branch-name-title {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 4px;
-  }
-  .branch-desc {
-    font-size: 13px;
-    color: var(--text-secondary);
-    line-height: 1.5;
-  }
-
-  .flow-connector {
-    grid-column: 2;
-    padding: 0 0 0 20px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--slate-500);
-    font-size: 12px;
-    font-style: italic;
-    margin: -4px 0;
-  }
-  .flow-arrow {
-    width: 0; height: 0;
-    border-left: 6px solid transparent;
-    border-right: 6px solid transparent;
-    border-top: 8px solid var(--slate-300);
-    margin-left: 10px;
-  }
-
-  /* ─── STEPS LIST ──────────────────────────────────── */
-  .steps-list {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-
-  .step {
-    display: grid;
-    grid-template-columns: 36px 1fr;
-    gap: 14px;
-    align-items: start;
-  }
-
-  .step-num {
-    width: 36px; height: 36px;
-    background: var(--blue-600);
-    color: white;
-    border-radius: 50%;
-    font-size: 13px;
-    font-weight: 700;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    font-family: 'IBM Plex Mono', monospace;
-  }
-
-  .step-body {}
-  .step-title {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 4px;
-  }
-  .step-detail {
-    font-size: 13.5px;
-    color: var(--text-secondary);
-    line-height: 1.6;
-  }
-
-  /* ─── CODE BLOCK ──────────────────────────────────── */
-  .code-block {
-    background: var(--blue-900);
-    color: #e2e8f0;
-    border-radius: var(--radius-sm);
-    padding: 18px 20px;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 12.5px;
-    line-height: 1.8;
-    overflow-x: auto;
-    margin-top: 10px;
-  }
-  .code-block .comment  { color: #64748b; }
-  .code-block .cmd      { color: #93c5fd; }
-  .code-block .str      { color: #86efac; }
-  .code-block .branch   { color: #fde68a; }
-
-  /* ─── PRACTICES GRID ──────────────────────────────── */
-  .practices-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-  }
-
-  .practice-card {
-    border: 1px solid var(--slate-100);
-    border-radius: var(--radius-sm);
-    padding: 16px 18px;
-  }
-  .practice-card-title {
-    font-size: 13.5px;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 8px;
-    display: flex;
-    align-items: center;
-    gap: 7px;
-  }
-  .practice-card-icon {
-    width: 24px; height: 24px;
-    border-radius: 6px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px;
-    flex-shrink: 0;
-  }
-
-  .practice-items {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-  .practice-items li {
-    font-size: 13px;
-    color: var(--text-secondary);
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    line-height: 1.5;
-  }
-  .practice-items li::before {
-    content: '→';
-    color: var(--blue-400);
-    font-weight: 700;
-    font-size: 11px;
-    margin-top: 2px;
-    flex-shrink: 0;
-  }
-
-  /* ─── CHECKLIST ───────────────────────────────────── */
-  .checklist {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  .checklist li {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    font-size: 13.5px;
-    color: var(--text-secondary);
-    line-height: 1.5;
-  }
-  .check-icon {
-    width: 18px; height: 18px;
-    border-radius: 4px;
-    border: 2px solid var(--slate-300);
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    margin-top: 1px;
-    font-size: 10px;
-  }
-  .check-icon.done  { background: var(--green); border-color: var(--green); color: white; }
-  .check-icon.warn  { background: var(--amber); border-color: var(--amber); color: white; }
-  .check-icon.empty { }
-
-  /* ─── RISK TABLE ──────────────────────────────────── */
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-  }
-  thead tr {
-    background: var(--slate-50);
-    border-bottom: 2px solid var(--slate-100);
-  }
-  th {
-    text-align: left;
-    padding: 10px 14px;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: .6px;
-    font-weight: 700;
-    color: var(--text-muted);
-  }
-  tbody tr { border-bottom: 1px solid var(--slate-100); }
-  tbody tr:last-child { border-bottom: none; }
-  td { padding: 11px 14px; color: var(--text-secondary); line-height: 1.5; vertical-align: top; }
-  .severity {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 2px 9px;
-    border-radius: 99px;
-    font-size: 11px;
-    font-weight: 700;
-  }
-  .sev-high   { background: var(--red-light);    color: var(--red); }
-  .sev-medium { background: var(--amber-light);  color: var(--amber); }
-  .sev-low    { background: var(--green-light);  color: var(--green); }
-
-  /* ─── CALLOUT ──────────────────────────────────────── */
-  .callout {
-    border-radius: var(--radius-sm);
-    padding: 14px 18px;
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
-    font-size: 13.5px;
-    line-height: 1.6;
-    margin-top: 16px;
-  }
-  .callout-info   { background: var(--blue-50);    border-left: 3px solid var(--blue-400);  color: var(--blue-700); }
-  .callout-warn   { background: var(--amber-light); border-left: 3px solid var(--amber);    color: #92400e; }
-  .callout-success{ background: var(--green-light); border-left: 3px solid var(--green);    color: #14532d; }
-  .callout-icon   { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
-
-  /* ─── DIVIDER ─────────────────────────────────────── */
-  .divider {
-    border: none;
-    border-top: 1px solid var(--slate-100);
-    margin: 20px 0;
-  }
-
-  /* ─── FOOTER ──────────────────────────────────────── */
-  .report-footer {
-    background: var(--blue-900);
-    color: rgba(255,255,255,.45);
-    text-align: center;
-    padding: 20px 48px;
-    font-size: 12px;
-    font-family: 'IBM Plex Mono', monospace;
-  }
-
-  /* ─── RESPONSIVE ──────────────────────────────────── */
-  @media (max-width: 720px) {
-    .header-inner { grid-template-columns: 1fr; padding: 28px 24px 24px; gap: 20px; }
-    .content { padding: 28px 20px 60px; }
-    .summary-grid { grid-template-columns: 1fr; }
-    .toc { grid-template-columns: 1fr; }
-    .practices-grid { grid-template-columns: 1fr; }
-    .section-body { padding: 18px 20px; }
-    .section-header { padding: 16px 20px 14px; }
-    .branch-row { grid-template-columns: 130px 1fr; }
-    td, th { padding: 9px 10px; }
-  }
-
-  @media print {
-    body { background: white; }
-    .section { box-shadow: none; border: 1px solid var(--slate-200); }
-    .report-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  }
-
-  /* ─── BRANCH FLOWCHART ────────────────────────────── */
-  .branch-flowchart-wrap {
-    margin-top: 28px;
-    border-top: 1px solid var(--slate-100);
-    padding-top: 24px;
-  }
-  .branch-flowchart-title {
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: .7px;
-    font-weight: 700;
-    color: var(--text-muted);
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .branch-flowchart-title::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--slate-100);
-  }
-  .flowchart-svg-wrap {
-    width: 100%;
-    overflow-x: auto;
-  }
-  .flowchart-svg-wrap svg {
-    display: block;
-    min-width: 680px;
-  }
-  /* PR badge tooltip on hover */
-  .pr-node { cursor: pointer; }
-  .pr-node:hover .pr-badge-rect { filter: brightness(.93); }
 </style>
 </head>
 <body>
 
-<!-- ══════════════════════════════════════════
-     HEADER
-══════════════════════════════════════════ -->
-<header class="report-header">
-  <div class="header-inner">
+<div class="page">
 
-    <!-- LOGO -->
-    <div class="logo-slot">
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-logo">
       <img src="Logo_Redes2.png" alt="Redes Tecnologia e Serviços" style="height: 60px;">
     </div>
-
-    <div class="header-meta">
-      <h1 class="report-title">Relatório de Engenharia de Qualidade<br/>Git Workflow &amp; Boas Práticas</h1>
-      <div class="badges">
-        <span class="badge badge-slate">📅 17/04/2026 · 14:40</span>
-        <span class="badge badge-blue">👤 QA Engineer</span>
-        <span class="badge badge-teal">🌿 Git Flow</span>
-        <span class="badge badge-amber">⚙️ Staging v2.4.0 · Node 20 · PostgreSQL 15</span>
+    <div class="header-info">
+      <div class="header-title">Relatório de Incidentes — Módulo Admin</div>
+      <div class="header-meta">
+        <span class="meta-pill">16/04/2026</span>
+        <span class="meta-pill">QA Engineer</span>
+        <span class="meta-pill">Staging v2.4.0 · Node 20 · PostgreSQL 15</span>
+        <span class="meta-pill">ISO/IEC/IEEE 29119-3:2021</span>
       </div>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <!-- MÉTRICAS -->
+    <div class="status-bar">
+      <div class="stat stat-total">
+        <div class="stat-lbl">Total de bugs</div>
+        <div class="stat-num">5</div>
+        <div class="stat-ids">0 corrigidos</div>
+      </div>
+      <div class="stat stat-s3">
+        <div class="stat-lbl">S3 — Alto</div>
+        <div class="stat-num">3</div>
+        <div class="stat-ids">001 · 003 · 004</div>
+      </div>
+      <div class="stat stat-s2">
+        <div class="stat-lbl">S2 — Médio</div>
+        <div class="stat-num">2</div>
+        <div class="stat-ids">002 · 005</div>
+      </div>
+      <div class="stat stat-p1">
+        <div class="stat-lbl">P1 — Imediato</div>
+        <div class="stat-num">4</div>
+        <div class="stat-ids">001 · 003 · 004 · 005</div>
+      </div>
+    </div>
+
+    <!-- PADRÃO -->
+    <div class="pattern-box">
+      <div class="pattern-bar"></div>
+      <div class="pattern-body">
+        <div class="pattern-title">Padrão identificado</div>
+        <div class="pattern-text">BUG-ADMIN-001, 003 e 004 compartilham causa raiz provável: o rerun da página suprime o feedback de sucesso ao usuário. Recomenda-se investigação conjunta antes de abrir correções separadas.</div>
+      </div>
+    </div>
+
+    <!-- VISÃO GERAL -->
+    <div class="sec-header">Visão geral</div>
+    <table class="sum-table">
+      <thead>
+        <tr><th>ID</th><th>Título</th><th>Severidade</th><th>Prioridade</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <tr><td style="font-weight:700;color:#1B4F8A">BUG-ADMIN-001</td><td>Mensagem de sucesso não aparece ao criar operador</td><td class="sev-s3">S3 — Alto</td><td class="pri-p1">P1 — Imediato</td><td><span class="st-open">Aberto</span></td></tr>
+        <tr><td style="font-weight:700;color:#1B4F8A">BUG-ADMIN-002</td><td>API retorna mensagem genérica para todos os erros</td><td class="sev-s2">S2 — Médio</td><td class="pri-p2">P2 — Alta</td><td><span class="st-open">Aberto</span></td></tr>
+        <tr><td style="font-weight:700;color:#1B4F8A">BUG-ADMIN-003</td><td>Mensagem ausente ao cadastrar com senha de 10 chars</td><td class="sev-s3">S3 — Alto</td><td class="pri-p1">P1 — Imediato</td><td><span class="st-open">Aberto</span></td></tr>
+        <tr><td style="font-weight:700;color:#1B4F8A">BUG-ADMIN-004</td><td>Mensagem não aparece ao atualizar senha de operador</td><td class="sev-s3">S3 — Alto</td><td class="pri-p1">P1 — Imediato</td><td><span class="st-open">Aberto</span></td></tr>
+        <tr><td style="font-weight:700;color:#1B4F8A">BUG-ADMIN-005</td><td>Erro de duplicado só aparece na segunda tentativa</td><td class="sev-s2">S2 — Médio</td><td class="pri-p1">P1 — Imediato</td><td><span class="st-open">Aberto</span></td></tr>
+      </tbody>
+    </table>
+
+    <!-- BUGS -->
+    <div class="sec-header">Detalhamento dos incidentes</div>
+
+    <div class="bug-card">
+      <div class="bug-head" style="background:#E8F0F9">
+        <div class="bug-accent" style="background:#1B4F8A"></div>
+        <div class="bug-id" style="color:#1B4F8A">BUG-ADMIN-001</div>
+        <div class="bug-title">Mensagem de sucesso não aparece ao criar operador</div>
+        <div class="bug-badges"><span class="bdg bdg-s3">S3 — Alto</span><span class="bdg bdg-p1">P1 — Imediato</span></div>
+      </div>
+      <div class="bug-body">
+        <div class="bug-col"><div class="col-lbl">Esperado</div><div class="col-val">Mensagem de sucesso exibida após a criação do operador.</div></div>
+        <div class="bug-col"><div class="col-lbl">Obtido</div><div class="col-val">Nenhuma mensagem exibida — rerun da página suprime o feedback ao usuário.</div></div>
+        <div class="bug-col">
+          <div class="col-lbl">Evidências</div><div class="col-val mono">admin.py:75-76<br>api_client.py:329</div>
+          <div class="rastr-lbl">Rastreabilidade</div><div class="rastr-val">RN-05</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bug-card">
+      <div class="bug-head" style="background:#EDE7F6">
+        <div class="bug-accent" style="background:#5B2D8E"></div>
+        <div class="bug-id" style="color:#3C3489">BUG-ADMIN-002</div>
+        <div class="bug-title">API retorna mensagem genérica para todos os tipos de erro</div>
+        <div class="bug-badges"><span class="bdg bdg-s2">S2 — Médio</span><span class="bdg bdg-p2">P2 — Alta</span></div>
+      </div>
+      <div class="bug-body">
+        <div class="bug-col"><div class="col-lbl">Esperado</div><div class="col-val">Mensagens específicas por tipo de erro (validação, duplicidade, campo obrigatório).</div></div>
+        <div class="bug-col"><div class="col-lbl">Obtido</div><div class="col-val">Mensagem genérica retornada para todos os cenários de erro.</div></div>
+        <div class="bug-col">
+          <div class="col-lbl">Evidências</div><div class="col-val mono">api_client.py:330</div>
+          <div class="rastr-lbl">Rastreabilidade</div><div class="rastr-val">RN-06</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bug-card">
+      <div class="bug-head" style="background:#E8F0F9">
+        <div class="bug-accent" style="background:#1B4F8A"></div>
+        <div class="bug-id" style="color:#1B4F8A">BUG-ADMIN-003</div>
+        <div class="bug-title">Mensagem ausente ao cadastrar operador com senha de 10 caracteres</div>
+        <div class="bug-badges"><span class="bdg bdg-s3">S3 — Alto</span><span class="bdg bdg-p1">P1 — Imediato</span></div>
+      </div>
+      <div class="bug-body">
+        <div class="bug-col"><div class="col-lbl">Esperado</div><div class="col-val">Mensagem de sucesso para senha válida no valor-limite inferior (10 chars).</div></div>
+        <div class="bug-col"><div class="col-lbl">Obtido</div><div class="col-val">Nenhuma mensagem exibida — rerun da página suprime o feedback.</div></div>
+        <div class="bug-col">
+          <div class="col-lbl">Evidências</div><div class="col-val mono">admin.py:75-76<br>api_client.py:329</div>
+          <div class="rastr-lbl">Rastreabilidade</div><div class="rastr-val">RN-06 · Boundary</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bug-card">
+      <div class="bug-head" style="background:#E8F0F9">
+        <div class="bug-accent" style="background:#1B4F8A"></div>
+        <div class="bug-id" style="color:#1B4F8A">BUG-ADMIN-004</div>
+        <div class="bug-title">Mensagem de sucesso não aparece ao atualizar senha de operador</div>
+        <div class="bug-badges"><span class="bdg bdg-s3">S3 — Alto</span><span class="bdg bdg-p1">P1 — Imediato</span></div>
+      </div>
+      <div class="bug-body">
+        <div class="bug-col"><div class="col-lbl">Esperado</div><div class="col-val">Confirmação de atualização de senha exibida ao usuário.</div></div>
+        <div class="bug-col"><div class="col-lbl">Obtido</div><div class="col-val">Mensagem não aparece — rerun da página suprime o feedback.</div></div>
+        <div class="bug-col">
+          <div class="col-lbl">Evidências</div><div class="col-val mono">admin.py:50-53<br>api_client.py:344</div>
+          <div class="rastr-lbl">Rastreabilidade</div><div class="rastr-val">Atualização de senha</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bug-card">
+      <div class="bug-head" style="background:#EDE7F6">
+        <div class="bug-accent" style="background:#5B2D8E"></div>
+        <div class="bug-id" style="color:#3C3489">BUG-ADMIN-005</div>
+        <div class="bug-title">Erro de usuário duplicado só aparece na segunda tentativa</div>
+        <div class="bug-badges"><span class="bdg bdg-s2">S2 — Médio</span><span class="bdg bdg-p1">P1 — Imediato</span></div>
+      </div>
+      <div class="bug-body">
+        <div class="bug-col"><div class="col-lbl">Esperado</div><div class="col-val">Mensagem de duplicidade exibida na primeira tentativa de cadastro.</div></div>
+        <div class="bug-col"><div class="col-lbl">Obtido</div><div class="col-val">Primeira tentativa sem erro. Segunda tentativa exibe corretamente.</div></div>
+        <div class="bug-col">
+          <div class="col-lbl">Evidências</div><div class="col-val mono">Teste automatizado<br>(cadastro duplicado)</div>
+          <div class="rastr-lbl">Rastreabilidade</div><div class="rastr-val">Cadastro duplicado</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+      <span class="footer-txt">ISO/IEC/IEEE 29119-3:2021 · cláusula 9.5 — Incident Report (IR)</span>
+      <span class="footer-txt">Versão 1.0 · 16/04/2026</span>
     </div>
 
   </div>
-</header>
-
-<!-- ══════════════════════════════════════════
-     CONTEÚDO PRINCIPAL
-══════════════════════════════════════════ -->
-<main class="content">
-
-  <!-- ① RESUMO EXECUTIVO ─────────────────────────── -->
-  <section class="section" id="resumo">
-    <div class="section-header">
-      <div class="section-icon icon-blue">📋</div>
-      <div>
-        <div class="section-label">Seção 01</div>
-        <div class="section-title">Resumo Executivo</div>
-      </div>
-    </div>
-    <div class="section-body">
-
-      <div class="summary-grid">
-        <div class="summary-card">
-          <div class="summary-card-label">Escopo</div>
-          <div class="summary-card-value">Git Flow</div>
-          <div class="summary-card-desc">Estrutura de branches e ciclo de vida</div>
-        </div>
-        <div class="summary-card">
-          <div class="summary-card-label">Ambientes</div>
-          <div class="summary-card-value">3 níveis</div>
-          <div class="summary-card-desc">develop → staging → main</div>
-        </div>
-        <div class="summary-card">
-          <div class="summary-card-label">Padrão</div>
-          <div class="summary-card-value">ISO 29119</div>
-          <div class="summary-card-desc">Documentação alinhada à norma</div>
-        </div>
-      </div>
-
-      <p class="summary-text">
-        Este relatório documenta o fluxo de trabalho Git adotado pela equipe de desenvolvimento e QA,
-        cobrindo desde a criação de branches individuais por desenvolvedor até a promoção de código
-        para produção. O objetivo é garantir rastreabilidade, qualidade e segurança em cada etapa do
-        ciclo de entrega — reduzindo regressões e facilitando rollback quando necessário.
-      </p>
-
-      <p class="summary-text" style="margin-top:10px;">
-        O documento está organizado nas seguintes seções:
-      </p>
-
-      <nav class="toc">
-        <a class="toc-item" href="#resumo">   <span class="toc-num">1</span> Resumo Executivo</a>
-        <a class="toc-item" href="#fluxo">    <span class="toc-num">2</span> Fluxo de Branches</a>
-        <a class="toc-item" href="#passo-a-passo"><span class="toc-num">3</span> Passo a Passo Prático</a>
-        <a class="toc-item" href="#commits">  <span class="toc-num">4</span> Padrão de Commits</a>
-        <a class="toc-item" href="#praticas"> <span class="toc-num">5</span> Boas Práticas</a>
-        <a class="toc-item" href="#checklist"><span class="toc-num">6</span> Checklist de Verificação</a>
-        <a class="toc-item" href="#riscos">   <span class="toc-num">7</span> Riscos &amp; Mitigações</a>
-        <a class="toc-item" href="#refs">     <span class="toc-num">8</span> Referências</a>
-        <a class="toc-item" href="#playwright"><span class="toc-num">9</span> Playwright — Ferramenta de Testes</a>
-      </nav>
-
-    </div>
-  </section>
-
-  <!-- ② FLUXO DE BRANCHES ───────────────────────── -->
-  <section class="section" id="fluxo">
-    <div class="section-header">
-      <div class="section-icon icon-teal">🌿</div>
-      <div>
-        <div class="section-label">Seção 02</div>
-        <div class="section-title">Fluxo de Branches — Do Dev à Produção</div>
-      </div>
-    </div>
-    <div class="section-body">
-
-      <!-- INTRO ACESSÍVEL -->
-      <div style="background:var(--blue-50);border-left:3px solid var(--blue-400);border-radius:var(--radius-sm);padding:16px 20px;margin-bottom:24px;">
-        <p style="font-size:14px;font-weight:700;color:var(--blue-700);margin-bottom:6px;">Nunca ouviu falar em branch? Começa aqui 👇</p>
-        <p style="font-size:13.5px;color:var(--blue-800);line-height:1.7;">
-          Imagine que o código é um documento Word compartilhado. Se todo mundo editasse o mesmo arquivo ao mesmo tempo, viraria uma bagunça.
-          <strong>Branch é uma cópia isolada</strong> desse documento — cada pessoa trabalha na sua cópia, sem atrapalhar ninguém.
-          Quando termina, passa por uma revisão (<strong>Pull Request</strong>), e aí sim o trabalho é juntado com o resto da equipe.
-        </p>
-      </div>
-
-      <!-- CARDS DOS AMBIENTES -->
-      <p style="font-size:12px;text-transform:uppercase;letter-spacing:.7px;font-weight:700;color:var(--text-muted);margin-bottom:14px;">Os 4 ambientes do nosso fluxo</p>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px;">
-
-        <div style="border-radius:var(--radius-sm);border:1.5px solid #bfdbfe;background:#eff6ff;padding:14px 16px;">
-          <div style="font-size:11px;font-family:'IBM Plex Mono',monospace;font-weight:700;color:#1d4ed8;margin-bottom:6px;">feature/</div>
-          <div style="font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:4px;">Sua área de trabalho</div>
-          <div style="font-size:12.5px;color:var(--text-secondary);line-height:1.6;">Cada tarefa ganha sua própria branch. Você cria, desenvolve e testa aqui antes de qualquer coisa.</div>
-        </div>
-
-        <div style="border-radius:var(--radius-sm);border:1.5px solid #99f6e4;background:#ccfbf1;padding:14px 16px;">
-          <div style="font-size:11px;font-family:'IBM Plex Mono',monospace;font-weight:700;color:#0f766e;margin-bottom:6px;">develop</div>
-          <div style="font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:4px;">Onde o time se junta</div>
-          <div style="font-size:12.5px;color:var(--text-secondary);line-height:1.6;">Todas as features aprovadas chegam aqui. É o ambiente de integração — onde vemos se tudo funciona junto.</div>
-        </div>
-
-        <div style="border-radius:var(--radius-sm);border:1.5px solid #fde68a;background:#fef3c7;padding:14px 16px;">
-          <div style="font-size:11px;font-family:'IBM Plex Mono',monospace;font-weight:700;color:#92400e;margin-bottom:6px;">staging</div>
-          <div style="font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:4px;">Ensaio geral antes de lançar</div>
-          <div style="font-size:12.5px;color:var(--text-secondary);line-height:1.6;">Réplica fiel da produção. O QA testa tudo aqui. Nada avança sem aprovação explícita do QA.</div>
-        </div>
-
-        <div style="border-radius:var(--radius-sm);border:2px solid #86efac;background:#dcfce7;padding:14px 16px;">
-          <div style="font-size:11px;font-family:'IBM Plex Mono',monospace;font-weight:700;color:#14532d;margin-bottom:6px;">main</div>
-          <div style="font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:4px;">O que está no ar</div>
-          <div style="font-size:12.5px;color:var(--text-secondary);line-height:1.6;">É o código em produção. Só chega aqui quem passou por todas as etapas anteriores. Tratamos como sagrado.</div>
-        </div>
-
-      </div>
-
-      <!-- FLUXOGRAMA -->
-      <p style="font-size:12px;text-transform:uppercase;letter-spacing:.7px;font-weight:700;color:var(--text-muted);margin-bottom:14px;">Como o código caminha — do início ao usuário final</p>
-      <div style="width:100%;overflow-x:auto;">
-<svg width="100%" viewBox="0 0 1060 420" role="img" xmlns="http://www.w3.org/2000/svg" style="font-family:'DM Sans',sans-serif;min-width:800px;">
-  <title>Fluxo de branches do desenvolvimento à produção</title>
-  <desc>Diagrama horizontal mostrando feature, develop, staging, main e production</desc>
-  <defs>
-    <marker id="f3-blue"  viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
-    <marker id="f3-teal"  viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#0d9488" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
-    <marker id="f3-green" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#16a34a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
-    <marker id="f3-red"   viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
-    <marker id="f3-gray"  viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  </defs>
-
-  <!-- ── LINHA DO TEMPO ── -->
-  <line x1="30" y1="195" x2="1040" y2="195" stroke="#e2e8f0" stroke-width="2" stroke-dasharray="6 5"/>
-
-  <!-- ════════ 1 — feature/ ════════ -->
-  <rect x="18" y="162" width="144" height="66" rx="12" fill="#eff6ff" stroke="#bfdbfe" stroke-width="2"/>
-  <text x="90" y="186" text-anchor="middle" font-size="13" font-weight="700" fill="#1d4ed8" font-family="IBM Plex Mono,monospace">feature/</text>
-  <text x="90" y="206" text-anchor="middle" font-size="11" fill="#3b82f6">área de trabalho</text>
-  <text x="90" y="220" text-anchor="middle" font-size="10.5" fill="#64748b">1 tarefa = 1 branch</text>
-
-  <!-- balão acima feature -->
-  <rect x="18" y="60" width="144" height="82" rx="10" fill="#f8fafc" stroke="#bfdbfe" stroke-width="1"/>
-  <text x="90" y="82" text-anchor="middle" font-size="11" font-weight="700" fill="#1d4ed8">Dev trabalha aqui</text>
-  <text x="90" y="100" text-anchor="middle" font-size="10.5" fill="#475569">Cria a branch, escreve</text>
-  <text x="90" y="116" text-anchor="middle" font-size="10.5" fill="#475569">o código e testa</text>
-  <text x="90" y="132" text-anchor="middle" font-size="10.5" fill="#475569">localmente</text>
-  <line x1="90" y1="142" x2="90" y2="162" stroke="#bfdbfe" stroke-width="1.5" stroke-dasharray="4 3"/>
-
-  <!-- seta 1→2 -->
-  <line x1="162" y1="195" x2="228" y2="195" stroke="#3b82f6" stroke-width="2" marker-end="url(#f3-blue)"/>
-  <!-- label entre 1 e 2 -->
-  <rect x="163" y="208" width="64" height="42" rx="7" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1"/>
-  <text x="195" y="224" text-anchor="middle" font-size="10" font-weight="700" fill="#1d4ed8">PR aberto</text>
-  <text x="195" y="238" text-anchor="middle" font-size="9.5" fill="#475569">colega revisa</text>
-  <text x="195" y="250" text-anchor="middle" font-size="9.5" fill="#475569">e aprova ✓</text>
-
-  <!-- ════════ 2 — develop ════════ -->
-  <rect x="228" y="162" width="158" height="66" rx="12" fill="#ccfbf1" stroke="#99f6e4" stroke-width="2"/>
-  <text x="307" y="186" text-anchor="middle" font-size="13" font-weight="700" fill="#0f766e" font-family="IBM Plex Mono,monospace">develop</text>
-  <text x="307" y="206" text-anchor="middle" font-size="11" fill="#0d9488">time todo junto</text>
-  <text x="307" y="220" text-anchor="middle" font-size="10.5" fill="#475569">integração contínua</text>
-
-  <!-- balão acima develop -->
-  <rect x="218" y="60" width="178" height="82" rx="10" fill="#f0fdfa" stroke="#99f6e4" stroke-width="1"/>
-  <text x="307" y="82" text-anchor="middle" font-size="11" font-weight="700" fill="#0f766e">Robôs testam tudo</text>
-  <text x="307" y="100" text-anchor="middle" font-size="10.5" fill="#475569">Verifica se o código</text>
-  <text x="307" y="116" text-anchor="middle" font-size="10.5" fill="#475569">de todos funciona</text>
-  <text x="307" y="132" text-anchor="middle" font-size="10.5" fill="#475569">junto — automático</text>
-  <line x1="307" y1="142" x2="307" y2="162" stroke="#99f6e4" stroke-width="1.5" stroke-dasharray="4 3"/>
-
-  <!-- badge deploy abaixo develop -->
-  <rect x="238" y="238" width="138" height="26" rx="7" fill="#ccfbf1" stroke="#99f6e4" stroke-width="1"/>
-  <text x="307" y="255" text-anchor="middle" font-size="10.5" font-weight="700" fill="#0f766e">🚀 deploy automático</text>
-
-  <!-- seta 2→3 -->
-  <line x1="386" y1="195" x2="452" y2="195" stroke="#0d9488" stroke-width="2" marker-end="url(#f3-teal)"/>
-  <!-- label entre 2 e 3 -->
-  <rect x="387" y="208" width="64" height="42" rx="7" fill="#f0fdfa" stroke="#99f6e4" stroke-width="1"/>
-  <text x="419" y="224" text-anchor="middle" font-size="10" font-weight="700" fill="#0f766e">PR aberto</text>
-  <text x="419" y="238" text-anchor="middle" font-size="9.5" fill="#475569">sprint ok?</text>
-  <text x="419" y="250" text-anchor="middle" font-size="9.5" fill="#475569">CI verde? ✓</text>
-
-  <!-- ════════ 3 — staging ════════ -->
-  <rect x="452" y="162" width="164" height="66" rx="12" fill="#fef3c7" stroke="#fde68a" stroke-width="2"/>
-  <text x="534" y="186" text-anchor="middle" font-size="13" font-weight="700" fill="#92400e" font-family="IBM Plex Mono,monospace">staging</text>
-  <text x="534" y="206" text-anchor="middle" font-size="11" fill="#d97706">ensaio geral — QA</text>
-  <text x="534" y="220" text-anchor="middle" font-size="10.5" fill="#475569">réplica da produção</text>
-
-  <!-- balão acima staging -->
-  <rect x="440" y="60" width="188" height="82" rx="10" fill="#fefce8" stroke="#fde68a" stroke-width="1"/>
-  <text x="534" y="82" text-anchor="middle" font-size="11" font-weight="700" fill="#92400e">QA testa como usuário</text>
-  <text x="534" y="100" text-anchor="middle" font-size="10.5" fill="#475569">Testes reais, cenários</text>
-  <text x="534" y="116" text-anchor="middle" font-size="10.5" fill="#475569">positivos, negativos</text>
-  <text x="534" y="132" text-anchor="middle" font-size="10.5" fill="#475569">e carga (k6)</text>
-  <line x1="534" y1="142" x2="534" y2="162" stroke="#fde68a" stroke-width="1.5" stroke-dasharray="4 3"/>
-
-  <!-- badge QA abaixo staging -->
-  <rect x="452" y="238" width="164" height="26" rx="7" fill="#fef3c7" stroke="#fde68a" stroke-width="1"/>
-  <text x="534" y="255" text-anchor="middle" font-size="10.5" font-weight="700" fill="#92400e">🔍 sign-off manual do QA</text>
-
-  <!-- seta 3→4 -->
-  <line x1="616" y1="195" x2="682" y2="195" stroke="#16a34a" stroke-width="2.5" marker-end="url(#f3-green)"/>
-  <!-- label entre 3 e 4 -->
-  <rect x="617" y="208" width="64" height="42" rx="7" fill="#f0fdf4" stroke="#86efac" stroke-width="1"/>
-  <text x="649" y="224" text-anchor="middle" font-size="10" font-weight="700" fill="#14532d">PR release</text>
-  <text x="649" y="238" text-anchor="middle" font-size="9.5" fill="#475569">QA aprovou?</text>
-  <text x="649" y="250" text-anchor="middle" font-size="9.5" fill="#475569">0 bugs? ✓</text>
-
-  <!-- ════════ 4 — main ════════ -->
-  <rect x="682" y="162" width="154" height="66" rx="12" fill="#dcfce7" stroke="#86efac" stroke-width="2.5"/>
-  <text x="759" y="186" text-anchor="middle" font-size="13" font-weight="700" fill="#14532d" font-family="IBM Plex Mono,monospace">main</text>
-  <text x="759" y="206" text-anchor="middle" font-size="11" fill="#16a34a">o que está no ar</text>
-  <text x="759" y="220" text-anchor="middle" font-size="10.5" fill="#475569">protegida · oficial</text>
-
-  <!-- balão acima main -->
-  <rect x="672" y="60" width="174" height="82" rx="10" fill="#f0fdf4" stroke="#86efac" stroke-width="1"/>
-  <text x="759" y="82" text-anchor="middle" font-size="11" font-weight="700" fill="#14532d">Deploy automático</text>
-  <text x="759" y="100" text-anchor="middle" font-size="10.5" fill="#475569">Gera versão oficial</text>
-  <text x="759" y="116" text-anchor="middle" font-size="10.5" fill="#475569">e sobe para o</text>
-  <text x="759" y="132" text-anchor="middle" font-size="10.5" fill="#475569">servidor</text>
-  <line x1="759" y1="142" x2="759" y2="162" stroke="#86efac" stroke-width="1.5" stroke-dasharray="4 3"/>
-
-  <!-- badge versão abaixo main -->
-  <rect x="695" y="238" width="128" height="26" rx="7" fill="#0d1b2a" stroke="#1e3a5f" stroke-width="1"/>
-  <text x="759" y="255" text-anchor="middle" font-size="10.5" font-weight="600" fill="#86efac" font-family="IBM Plex Mono,monospace">🏷 versão v2.4.0</text>
-
-  <!-- seta 4→prod -->
-  <line x1="836" y1="195" x2="892" y2="195" stroke="#16a34a" stroke-width="2" marker-end="url(#f3-green)"/>
-
-  <!-- ════════ 5 — production ════════ -->
-  <rect x="892" y="162" width="150" height="66" rx="12" fill="#0d1b2a" stroke="#1e3a5f" stroke-width="2"/>
-  <text x="967" y="186" text-anchor="middle" font-size="13" font-weight="700" fill="#86efac" font-family="IBM Plex Mono,monospace">production</text>
-  <text x="967" y="206" text-anchor="middle" font-size="11" fill="#4ade80">usuário usa aqui 🎉</text>
-  <text x="967" y="220" text-anchor="middle" font-size="10.5" fill="#94a3b8">live · monitorado</text>
-
-  <!-- balão acima production -->
-  <rect x="882" y="60" width="170" height="82" rx="10" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
-  <text x="967" y="82" text-anchor="middle" font-size="11" font-weight="700" fill="#334155">Monitoramento ativo</text>
-  <text x="967" y="100" text-anchor="middle" font-size="10.5" fill="#475569">Se algo der errado,</text>
-  <text x="967" y="116" text-anchor="middle" font-size="10.5" fill="#475569">o time é avisado e</text>
-  <text x="967" y="132" text-anchor="middle" font-size="10.5" fill="#475569">faz rollback rápido</text>
-  <line x1="967" y1="142" x2="967" y2="162" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3"/>
-
-  <!-- ════════ HOTFIX ════════ -->
-  <path d="M759 228 Q759 310 649 310 Q540 310 534 272" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#f3-red)"/>
-  <rect x="608" y="296" width="82" height="22" rx="6" fill="#fee2e2" stroke="#fca5a5" stroke-width="1"/>
-  <text x="649" y="311" text-anchor="middle" font-size="10" font-weight="700" fill="#dc2626">🚑 hotfix urgente</text>
-
-  <path d="M534 272 Q534 360 307 360 Q307 272 307 264" fill="none" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="5 4" marker-end="url(#f3-gray)"/>
-  <rect x="354" y="348" width="106" height="20" rx="5" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
-  <text x="407" y="362" text-anchor="middle" font-size="9.5" fill="#64748b">também vai pra develop</text>
-
-  <!-- ════════ LEGENDA ════════ -->
-  <rect x="18" y="388" width="1024" height="24" rx="6" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
-  <rect x="32"  y="396" width="10" height="10" rx="2" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1.5"/><text x="47"  y="405" font-size="9.5" fill="#475569">feature</text>
-  <rect x="103" y="396" width="10" height="10" rx="2" fill="#ccfbf1" stroke="#99f6e4" stroke-width="1.5"/><text x="118" y="405" font-size="9.5" fill="#475569">develop</text>
-  <rect x="178" y="396" width="10" height="10" rx="2" fill="#fef3c7" stroke="#fde68a" stroke-width="1.5"/><text x="193" y="405" font-size="9.5" fill="#475569">staging</text>
-  <rect x="250" y="396" width="10" height="10" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="1.5"/><text x="265" y="405" font-size="9.5" fill="#475569">main</text>
-  <rect x="310" y="396" width="10" height="10" rx="2" fill="#0d1b2a" stroke="#1e3a5f" stroke-width="1"/><text x="325" y="405" font-size="9.5" fill="#475569">production</text>
-  <line x1="404" y1="401" x2="420" y2="401" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4 2"/><text x="425" y="405" font-size="9.5" fill="#475569">hotfix</text>
-  <text x="510" y="405" font-size="9.5" fill="#475569">|</text>
-  <text x="520" y="405" font-size="9.5" font-weight="700" fill="#475569">PR:</text><text x="538" y="405" font-size="9.5" fill="#475569">pedido de revisão — o código só avança se um colega aprovar</text>
-  <text x="818" y="405" font-size="9.5" font-weight="700" fill="#475569">Robôs (CI/CD):</text><text x="893" y="405" font-size="9.5" fill="#475569">verificam o código automaticamente</text>
-</svg>
-      </div>
-
-      <!-- O QUE PODE TRAVAR -->
-      <p style="font-size:12px;text-transform:uppercase;letter-spacing:.7px;font-weight:700;color:var(--text-muted);margin:24px 0 14px;">O que pode travar um PR? — situações comuns</p>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
-
-        <div style="border-radius:var(--radius-sm);border:1px solid #fca5a5;background:#fff5f5;padding:14px 16px;">
-          <div style="font-size:12px;font-weight:700;color:#dc2626;margin-bottom:8px;">feature → develop</div>
-          <ul style="list-style:none;display:flex;flex-direction:column;gap:5px;">
-            <li style="font-size:12.5px;color:var(--text-secondary);display:flex;gap:6px;align-items:flex-start;"><span style="color:#dc2626;font-weight:700;flex-shrink:0;">✗</span>Código com erro (build quebrado)</li>
-            <li style="font-size:12.5px;color:var(--text-secondary);display:flex;gap:6px;align-items:flex-start;"><span style="color:#dc2626;font-weight:700;flex-shrink:0;">✗</span>Colega pediu ajuste na revisão</li>
-            <li style="font-size:12.5px;color:var(--text-secondary);display:flex;gap:6px;align-items:flex-start;"><span style="color:#dc2626;font-weight:700;flex-shrink:0;">✗</span>Cobertura de testes insuficiente</li>
-            <li style="font-size:12.5px;color:var(--text-secondary);display:flex;gap:6px;align-items:flex-start;"><span style="color:#dc2626;font-weight:700;flex-shrink:0;">✗</span>Conflito com outra branch</li>
-          </ul>
-        </div>
-
-        <div style="border-radius:var(--radius-sm);border:1px solid #fca5a5;background:#fff5f5;padding:14px 16px;">
-          <div style="font-size:12px;font-weight:700;color:#dc2626;margin-bottom:8px;">develop → staging</div>
-          <ul style="list-style:none;display:flex;flex-direction:column;gap:5px;">
-            <li style="font-size:12.5px;color:var(--text-secondary);display:flex;gap:6px;align-items:flex-start;"><span style="color:#dc2626;font-weight:700;flex-shrink:0;">✗</span>Tarefas do sprint ainda abertas</li>
-            <li style="font-size:12.5px;color:var(--text-secondary);display:flex;gap:6px;align-items:flex-start;"><span style="color:#dc2626;font-weight:700;flex-shrink:0;">✗</span>Testes automáticos falhando</li>
-            <li style="font-size:12.5px;color:var(--text-secondary);display:flex;gap:6px;align-items:flex-start;"><span style="color:#dc2626;font-weight:700;flex-shrink:0;">✗</span>Changelog não atualizado</li>
-            <li style="font-size:12.5px;color:var(--text-secondary);display:flex;gap:6px;align-items:flex-start;"><span style="color:#dc2626;font-weight:700;flex-shrink:0;">✗</span>Conflito ainda não resolvido</li>
-          </ul>
-        </div>
-
-        <div style="border-radius:var(--radius-sm);border:1px solid #fca5a5;background:#fff5f5;padding:14px 16px;">
-          <div style="font-size:12px;font-weight:700;color:#dc2626;margin-bottom:8px;">staging → main</div>
-          <ul style="list-style:none;display:flex;flex-direction:column;gap:5px;">
-            <li style="font-size:12.5px;color:var(--text-secondary);display:flex;gap:6px;align-items:flex-start;"><span style="color:#dc2626;font-weight:700;flex-shrink:0;">✗</span>QA não deu o ok ainda</li>
-            <li style="font-size:12.5px;color:var(--text-secondary);display:flex;gap:6px;align-items:flex-start;"><span style="color:#dc2626;font-weight:700;flex-shrink:0;">✗</span>Bug grave em aberto</li>
-            <li style="font-size:12.5px;color:var(--text-secondary);display:flex;gap:6px;align-items:flex-start;"><span style="color:#dc2626;font-weight:700;flex-shrink:0;">✗</span>Problema de performance detectado</li>
-            <li style="font-size:12.5px;color:var(--text-secondary);display:flex;gap:6px;align-items:flex-start;"><span style="color:#dc2626;font-weight:700;flex-shrink:0;">✗</span>Comentários do PR sem resposta</li>
-          </ul>
-        </div>
-
-      </div>
-
-      <div class="callout callout-warn" style="margin-top:20px;">
-        <span class="callout-icon">🚑</span>
-        <div>
-          <strong>E se der um bug urgente em produção?</strong> Isso se chama <strong>hotfix</strong>.
-          A correção é feita diretamente a partir do <code>main</code>, testada rapidamente, e sobe direto.
-          Depois, obrigatoriamente, também vai para o <code>develop</code> — para que a correção não se perca na próxima versão.
-        </div>
-      </div>
-
-
-    </div>
-  </section>
-
-  <!-- ③ PASSO A PASSO ────────────────────────────── -->
-  <section class="section" id="passo-a-passo">
-    <div class="section-header">
-      <div class="section-icon icon-blue">🔧</div>
-      <div>
-        <div class="section-label">Seção 03</div>
-        <div class="section-title">Passo a Passo Prático — Ciclo Completo</div>
-      </div>
-    </div>
-    <div class="section-body">
-
-      <div class="steps-list">
-
-        <div class="step">
-          <div class="step-num">01</div>
-          <div class="step-body">
-            <div class="step-title">Sincronize o repositório e crie sua branch</div>
-            <div class="step-detail">Sempre parta de <code>develop</code> atualizado. Nunca inicie uma feature a partir de uma branch desatualizada.</div>
-            <div class="code-block">
-<span class="comment"># Atualiza develop local</span>
-<span class="cmd">git</span> checkout develop
-<span class="cmd">git</span> pull origin develop
-
-<span class="comment"># Cria branch de feature</span>
-<span class="cmd">git</span> checkout -b <span class="branch">feature/QA-123-login-validacao</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="step">
-          <div class="step-num">02</div>
-          <div class="step-body">
-            <div class="step-title">Desenvolva e faça commits atômicos</div>
-            <div class="step-detail">Cada commit deve ter <strong>um único propósito</strong>. Use Conventional Commits. Isso facilita revisão e rollback granular.</div>
-            <div class="code-block">
-<span class="comment"># Adiciona somente os arquivos da tarefa</span>
-<span class="cmd">git</span> add src/components/Login.tsx
-
-<span class="comment"># Commit com prefixo semântico</span>
-<span class="cmd">git</span> commit -m <span class="str">"feat(login): adiciona validação de e-mail em tempo real"</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="step">
-          <div class="step-num">03</div>
-          <div class="step-body">
-            <div class="step-title">Abra o Pull Request para develop</div>
-            <div class="step-detail">
-              Descreva o PR com: <em>o que foi feito</em>, <em>como testar</em> e <em>screenshots / evidências</em>.
-              Associe ao ticket (Jira, Linear, etc.). Solicite ao menos 1 revisor.
-            </div>
-            <div class="code-block">
-<span class="comment"># Envia branch ao remote</span>
-<span class="cmd">git</span> push origin <span class="branch">feature/QA-123-login-validacao</span>
-
-<span class="comment"># Abra o PR via interface GitHub/GitLab</span>
-<span class="comment"># Título: feat(login): validação de e-mail — QA-123</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="step">
-          <div class="step-num">04</div>
-          <div class="step-body">
-            <div class="step-title">CI/CD valida o PR automaticamente</div>
-            <div class="step-detail">
-              O pipeline deve rodar: linting, testes unitários, build. PR bloqueado se qualquer etapa falhar.
-              Cypress smoke tests e k6 executam no merge em <code>develop</code>.
-            </div>
-          </div>
-        </div>
-
-        <div class="step">
-          <div class="step-num">05</div>
-          <div class="step-body">
-            <div class="step-title">QA valida em staging antes do release</div>
-            <div class="step-detail">
-              Teste funcional, regressão, edge cases e performance. Registre evidências (screenshots, logs, relatório k6).
-              Emita o <strong>sign-off</strong> documentado no PR ou ticket.
-            </div>
-          </div>
-        </div>
-
-        <div class="step">
-          <div class="step-num">06</div>
-          <div class="step-body">
-            <div class="step-title">Release para main com tag semântica</div>
-            <div class="step-detail">Merge squash ou rebase. Crie a tag de versão. Mantenha <code>CHANGELOG.md</code> atualizado.</div>
-            <div class="code-block">
-<span class="cmd">git</span> checkout main
-<span class="cmd">git</span> merge --no-ff <span class="branch">staging</span>
-<span class="cmd">git</span> tag -a <span class="str">v2.4.0</span> -m <span class="str">"Release v2.4.0 — sprint 12"</span>
-<span class="cmd">git</span> push origin main --tags
-            </div>
-          </div>
-        </div>
-
-      </div><!-- /steps-list -->
-
-    </div>
-  </section>
-
-  <!-- ④ COMMITS ──────────────────────────────────── -->
-  <section class="section" id="commits">
-    <div class="section-header">
-      <div class="section-icon icon-teal">✍️</div>
-      <div>
-        <div class="section-label">Seção 04</div>
-        <div class="section-title">Padrão de Commits — Conventional Commits</div>
-      </div>
-    </div>
-    <div class="section-body">
-
-      <p style="font-size:14px;color:var(--text-secondary);margin-bottom:18px;">
-        Mensagens de commit claras permitem geração automática de changelog e facilitam bisect de bugs.
-        Formato: <code style="background:var(--slate-100);padding:2px 6px;border-radius:4px;">tipo(escopo): descrição curta no imperativo</code>
-      </p>
-
-      <table>
-        <thead>
-          <tr>
-            <th>Tipo</th>
-            <th>Quando usar</th>
-            <th>Exemplo</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><code>feat</code></td>
-            <td>Nova funcionalidade</td>
-            <td><code>feat(auth): implementa refresh token</code></td>
-          </tr>
-          <tr>
-            <td><code>fix</code></td>
-            <td>Correção de bug</td>
-            <td><code>fix(api): corrige 500 em timeout de sessão</code></td>
-          </tr>
-          <tr>
-            <td><code>test</code></td>
-            <td>Adiciona ou corrige testes</td>
-            <td><code>test(login): adiciona caso de senha expirada</code></td>
-          </tr>
-          <tr>
-            <td><code>refactor</code></td>
-            <td>Refatoração sem mudança de comportamento</td>
-            <td><code>refactor(utils): extrai validador para módulo próprio</code></td>
-          </tr>
-          <tr>
-            <td><code>chore</code></td>
-            <td>Tarefas de manutenção (deps, config)</td>
-            <td><code>chore: atualiza cypress para v13</code></td>
-          </tr>
-          <tr>
-            <td><code>docs</code></td>
-            <td>Documentação</td>
-            <td><code>docs: atualiza README com setup local</code></td>
-          </tr>
-          <tr>
-            <td><code>ci</code></td>
-            <td>Alterações no pipeline CI/CD</td>
-            <td><code>ci: adiciona step de smoke test no staging</code></td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div class="callout callout-warn" style="margin-top:16px;">
-        <span class="callout-icon">⚠️</span>
-        <div>
-          <strong>Quebre mudanças (breaking changes)</strong> devem incluir <code>BREAKING CHANGE:</code>
-          no corpo do commit ou um <code>!</code> após o tipo: <code>feat(api)!: remove endpoint legado /v1/users</code>.
-          Isso dispara bump de versão maior automaticamente via semantic-release.
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- ⑤ BOAS PRÁTICAS ────────────────────────────── -->
-  <section class="section" id="praticas">
-    <div class="section-header">
-      <div class="section-icon icon-green">✅</div>
-      <div>
-        <div class="section-label">Seção 05</div>
-        <div class="section-title">Boas Práticas — Clean &amp; Organized</div>
-      </div>
-    </div>
-    <div class="section-body">
-
-      <div class="practices-grid">
-
-        <div class="practice-card">
-          <div class="practice-card-title">
-            <div class="practice-card-icon icon-blue">🌿</div>
-            Nomenclatura de Branches
-          </div>
-          <ul class="practice-items">
-            <li>Use prefixo: <code>feature/</code>, <code>fix/</code>, <code>hotfix/</code>, <code>chore/</code></li>
-            <li>Inclua o ID do ticket: <code>feature/QA-123-descricao</code></li>
-            <li>Letras minúsculas, hífens, sem espaços ou acentos</li>
-            <li>Nomes descritivos e curtos (máx. 50 chars)</li>
-            <li>Delete branches após o merge</li>
-          </ul>
-        </div>
-
-        <div class="practice-card">
-          <div class="practice-card-title">
-            <div class="practice-card-icon icon-teal">🔍</div>
-            Pull Requests
-          </div>
-          <ul class="practice-items">
-            <li>PR pequeno: máximo 400 linhas alteradas</li>
-            <li>Descrição com contexto, como testar e evidências</li>
-            <li>Ao menos 1 aprovação antes do merge</li>
-            <li>Nunca faça merge do próprio PR sem revisão</li>
-            <li>Resolva todos os comentários antes de mergear</li>
-          </ul>
-        </div>
-
-        <div class="practice-card">
-          <div class="practice-card-title">
-            <div class="practice-card-icon icon-amber">🔒</div>
-            Proteção de Branches
-          </div>
-          <ul class="practice-items">
-            <li>Bloqueie push direto em <code>main</code> e <code>develop</code></li>
-            <li>Exija status checks do CI para merge</li>
-            <li>Exija ao menos 1 revisor aprovador</li>
-            <li>Ative "dismiss stale reviews" em <code>main</code></li>
-            <li>Nunca faça force push em branches protegidas</li>
-          </ul>
-        </div>
-
-        <div class="practice-card">
-          <div class="practice-card-title">
-            <div class="practice-card-icon icon-green">🧪</div>
-            Qualidade e QA
-          </div>
-          <ul class="practice-items">
-            <li>Cypress para testes E2E antes do merge em staging</li>
-            <li>k6 para smoke de performance a cada release</li>
-            <li>Cobertura mínima de 70% nos testes unitários</li>
-            <li>Testes de regressão antes de qualquer release</li>
-            <li>Documente cenários positivos, negativos e edge cases</li>
-          </ul>
-        </div>
-
-        <div class="practice-card">
-          <div class="practice-card-title">
-            <div class="practice-card-icon icon-red">🚑</div>
-            Hotfix e Rollback
-          </div>
-          <ul class="practice-items">
-            <li>Hotfix sempre parte de <code>main</code>, não de <code>develop</code></li>
-            <li>Após hotfix, faça merge de volta em <code>develop</code></li>
-            <li>Rollback via <code>git revert</code> (nunca force reset em main)</li>
-            <li>Documente o incidente com causa raiz e timeline</li>
-          </ul>
-        </div>
-
-        <div class="practice-card">
-          <div class="practice-card-title">
-            <div class="practice-card-icon icon-blue">📚</div>
-            Documentação e Rastreabilidade
-          </div>
-          <ul class="practice-items">
-            <li>Mantenha <code>CHANGELOG.md</code> atualizado a cada release</li>
-            <li>Associe commits ao ticket de origem</li>
-            <li>Gere relatórios de teste com evidências no PR</li>
-            <li>Use tags semânticas (<code>v1.2.3</code>) para versionar releases</li>
-          </ul>
-        </div>
-
-      </div><!-- /practices-grid -->
-
-      <div class="callout callout-success" style="margin-top:4px;">
-        <span class="callout-icon">✅</span>
-        <div>
-          <strong>Regra de ouro:</strong> Trate <code>main</code> como sagrado. Qualquer código que chegue
-          a <code>main</code> já foi revisado, testado e aprovado. Nunca comprometa essa regra por urgência.
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- ⑥ CHECKLIST ────────────────────────────────── -->
-  <section class="section" id="checklist">
-    <div class="section-header">
-      <div class="section-icon icon-teal">☑️</div>
-      <div>
-        <div class="section-label">Seção 06</div>
-        <div class="section-title">Checklist de Verificação — Antes do Merge</div>
-      </div>
-    </div>
-    <div class="section-body">
-
-      <p style="font-size:13.5px;color:var(--text-muted);margin-bottom:18px;">
-        Use este checklist a cada Pull Request. Itens marcados com ⚠️ exigem confirmação do QA antes de prosseguir.
-      </p>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 32px;">
-        <div>
-          <p style="font-size:12px;text-transform:uppercase;letter-spacing:.6px;font-weight:700;color:var(--text-muted);margin-bottom:12px;">Developer</p>
-          <ul class="checklist">
-            <li><span class="check-icon done">✓</span> Branch criada a partir de <code>develop</code> atualizado</li>
-            <li><span class="check-icon done">✓</span> Commits atômicos com Conventional Commits</li>
-            <li><span class="check-icon done">✓</span> Testes unitários passando localmente</li>
-            <li><span class="check-icon done">✓</span> Sem arquivos desnecessários commitados (<code>.env</code>, <code>node_modules</code>)</li>
-            <li><span class="check-icon done">✓</span> PR com descrição, contexto e como testar</li>
-            <li><span class="check-icon done">✓</span> Reviewer(s) atribuídos</li>
-            <li><span class="check-icon empty"></span> CI/CD passa sem erros</li>
-            <li><span class="check-icon empty"></span> Conflitos resolvidos antes do merge</li>
-          </ul>
-        </div>
-        <div>
-          <p style="font-size:12px;text-transform:uppercase;letter-spacing:.6px;font-weight:700;color:var(--text-muted);margin-bottom:12px;">QA Engineer</p>
-          <ul class="checklist">
-            <li><span class="check-icon done">✓</span> Cenários positivos executados e aprovados</li>
-            <li><span class="check-icon done">✓</span> Cenários negativos e edge cases validados</li>
-            <li><span class="check-icon warn">⚠</span> Regressão funcional executada em staging</li>
-            <li><span class="check-icon warn">⚠</span> Performance validada com k6 (p95 &lt; SLA)</li>
-            <li><span class="check-icon empty"></span> Evidências de teste anexadas ao PR</li>
-            <li><span class="check-icon empty"></span> Nenhum bug crítico ou bloqueante em aberto</li>
-            <li><span class="check-icon empty"></span> Sign-off documentado no ticket</li>
-          </ul>
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- ⑦ RISCOS ────────────────────────────────────── -->
-  <section class="section" id="riscos">
-    <div class="section-header">
-      <div class="section-icon icon-red">⚠️</div>
-      <div>
-        <div class="section-label">Seção 07</div>
-        <div class="section-title">Riscos, Gravidade e Mitigações</div>
-      </div>
-    </div>
-    <div class="section-body">
-
-      <table>
-        <thead>
-          <tr>
-            <th>Risco</th>
-            <th>Gravidade</th>
-            <th>Mitigação</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Push direto em <code>main</code> sem revisão</td>
-            <td><span class="severity sev-high">🔴 Alta</span></td>
-            <td>Proteção de branch + CI obrigatório</td>
-          </tr>
-          <tr>
-            <td>Branches de longa duração sem sync com <code>develop</code></td>
-            <td><span class="severity sev-high">🔴 Alta</span></td>
-            <td>Rebase diário obrigatório; branches &lt; 2 dias</td>
-          </tr>
-          <tr>
-            <td>Deploy em produção sem aprovação de QA</td>
-            <td><span class="severity sev-high">🔴 Alta</span></td>
-            <td>Gate manual no pipeline + sign-off documentado</td>
-          </tr>
-          <tr>
-            <td>Credenciais ou segredos commitados</td>
-            <td><span class="severity sev-high">🔴 Alta</span></td>
-            <td>Git hooks com detect-secrets + <code>.gitignore</code> revisado</td>
-          </tr>
-          <tr>
-            <td>PR sem cobertura de testes</td>
-            <td><span class="severity sev-medium">🟡 Média</span></td>
-            <td>Coverage check no CI (mín. 70%)</td>
-          </tr>
-          <tr>
-            <td>Merge sem resolver todos os comentários do PR</td>
-            <td><span class="severity sev-medium">🟡 Média</span></td>
-            <td>Regra de branch: "require conversations resolved"</td>
-          </tr>
-          <tr>
-            <td>Ausência de tag de versão no release</td>
-            <td><span class="severity sev-low">🟢 Baixa</span></td>
-            <td>semantic-release automatizado no merge em main</td>
-          </tr>
-          <tr>
-            <td>Rollback sem teste em staging</td>
-            <td><span class="severity sev-low">🟢 Baixa</span></td>
-            <td>Teste de rollback no runbook de incidentes</td>
-          </tr>
-        </tbody>
-      </table>
-
-    </div>
-  </section>
-
-  <!-- ⑧ REFERÊNCIAS ───────────────────────────────── -->
-  <section class="section" id="refs">
-    <div class="section-header">
-      <div class="section-icon icon-blue">🔗</div>
-      <div>
-        <div class="section-label">Seção 08</div>
-        <div class="section-title">Referências</div>
-      </div>
-    </div>
-    <div class="section-body">
-
-      <table>
-        <thead>
-          <tr>
-            <th>Título</th>
-            <th>Fonte</th>
-            <th>Relevância</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Conventional Commits v1.0.0</td>
-            <td><a href="https://www.conventionalcommits.org" target="_blank">conventionalcommits.org</a></td>
-            <td>Padrão de mensagens de commit</td>
-          </tr>
-          <tr>
-            <td>A successful Git branching model — Vincent Driessen</td>
-            <td><a href="https://nvie.com/posts/a-successful-git-branching-model/" target="_blank">nvie.com, 2010</a></td>
-            <td>Base do Git Flow adotado</td>
-          </tr>
-          <tr>
-            <td>GitHub — About protected branches</td>
-            <td><a href="https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches" target="_blank">docs.github.com</a></td>
-            <td>Configuração de proteção de branches</td>
-          </tr>
-          <tr>
-            <td>Cypress Best Practices</td>
-            <td><a href="https://docs.cypress.io/guides/references/best-practices" target="_blank">docs.cypress.io</a></td>
-            <td>Boas práticas de testes E2E</td>
-          </tr>
-          <tr>
-            <td>ISO/IEC/IEEE 29119-3:2021 — Test Documentation</td>
-            <td>ISO, 2021</td>
-            <td>Norma de documentação de testes</td>
-          </tr>
-          <tr>
-            <td>k6 — Performance testing best practices</td>
-            <td><a href="https://k6.io/docs/testing-guides/api-load-testing/" target="_blank">k6.io/docs</a></td>
-            <td>Testes de performance com k6</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div class="callout callout-info" style="margin-top:16px;">
-        <span class="callout-icon">📌</span>
-        <div>
-          <strong>Limites e pontos para confirmação do usuário:</strong>
-          Os thresholds de cobertura (70%), tamanho de PR (400 linhas) e SLA de performance devem ser
-          revisados e ajustados conforme os critérios do seu time e produto. Adapte as regras de
-          proteção de branches ao plano do GitHub/GitLab utilizado.
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- ⑨ PLAYWRIGHT ──────────────────────────────── -->
-  <section class="section" id="playwright">
-    <div class="section-header">
-      <div class="section-icon icon-teal">🎭</div>
-      <div>
-        <div class="section-label">Seção 09</div>
-        <div class="section-title">Playwright — Ferramenta de Testes E2E</div>
-      </div>
-    </div>
-    <div class="section-body">
-
-      <div style="background:var(--blue-50);border-left:3px solid var(--blue-400);border-radius:var(--radius-sm);padding:16px 20px;margin-bottom:24px;">
-        <p style="font-size:14px;font-weight:700;color:var(--blue-700);margin-bottom:6px;">O que é o Playwright?</p>
-        <p style="font-size:13.5px;color:var(--blue-800);line-height:1.7;">
-          O <strong>Playwright</strong> é um framework de testes end-to-end (E2E) desenvolvido pela Microsoft,
-          que permite automatizar interações reais em navegadores — exatamente como um usuário faria.
-          Ele suporta <strong>Chromium, Firefox e WebKit</strong> em uma única API, roda em Windows, Linux e macOS,
-          e é ideal para validar fluxos críticos da aplicação antes de cada release.
-        </p>
-      </div>
-
-      <!-- CARDS DE FEATURES -->
-      <p style="font-size:12px;text-transform:uppercase;letter-spacing:.7px;font-weight:700;color:var(--text-muted);margin-bottom:14px;">Principais recursos utilizados nos testes</p>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px;">
-
-        <div style="border-radius:var(--radius-sm);border:1.5px solid #bfdbfe;background:#eff6ff;padding:14px 16px;">
-          <div style="font-size:12px;font-weight:700;color:#1d4ed8;margin-bottom:6px;">⏳ Auto-Wait</div>
-          <div style="font-size:12.5px;color:var(--text-secondary);line-height:1.6;">
-            Playwright aguarda automaticamente que elementos estejam visíveis, clicáveis e estáveis antes de interagir.
-            Elimina <code>sleep()</code> artificiais e torna os testes mais confiáveis.
-          </div>
-        </div>
-
-        <div style="border-radius:var(--radius-sm);border:1.5px solid #99f6e4;background:#ccfbf1;padding:14px 16px;">
-          <div style="font-size:12px;font-weight:700;color:#0f766e;margin-bottom:6px;">🌐 Multi-Browser</div>
-          <div style="font-size:12.5px;color:var(--text-secondary);line-height:1.6;">
-            Os mesmos testes rodam em <strong>Chromium</strong>, <strong>Firefox</strong> e <strong>WebKit (Safari)</strong>
-            sem alteração de código, garantindo compatibilidade cross-browser.
-          </div>
-        </div>
-
-        <div style="border-radius:var(--radius-sm);border:1.5px solid #fde68a;background:#fef3c7;padding:14px 16px;">
-          <div style="font-size:12px;font-weight:700;color:#92400e;margin-bottom:6px;">📸 Screenshots & Traces</div>
-          <div style="font-size:12.5px;color:var(--text-secondary);line-height:1.6;">
-            Captura screenshots e vídeos automaticamente em falhas. O <strong>Trace Viewer</strong> permite
-            replay visual passo a passo do que aconteceu durante o teste.
-          </div>
-        </div>
-
-        <div style="border-radius:var(--radius-sm);border:1.5px solid #bfdbfe;background:#eff6ff;padding:14px 16px;">
-          <div style="font-size:12px;font-weight:700;color:#1d4ed8;margin-bottom:6px;">🎯 Seletores Semânticos</div>
-          <div style="font-size:12.5px;color:var(--text-secondary);line-height:1.6;">
-            Prioriza seletores por <strong>role</strong>, <strong>texto visível</strong> e <strong>data-testid</strong>,
-            tornando os testes mais próximos da experiência real do usuário e menos frágeis a mudanças de CSS.
-          </div>
-        </div>
-
-        <div style="border-radius:var(--radius-sm);border:1.5px solid #99f6e4;background:#ccfbf1;padding:14px 16px;">
-          <div style="font-size:12px;font-weight:700;color:#0f766e;margin-bottom:6px;">⚡ Paralelismo Nativo</div>
-          <div style="font-size:12.5px;color:var(--text-secondary);line-height:1.6;">
-            Executa testes em paralelo por padrão, em múltiplos workers e múltiplos browsers simultaneamente —
-            reduzindo drasticamente o tempo de execução da suíte.
-          </div>
-        </div>
-
-        <div style="border-radius:var(--radius-sm);border:1.5px solid #fde68a;background:#fef3c7;padding:14px 16px;">
-          <div style="font-size:12px;font-weight:700;color:#92400e;margin-bottom:6px;">🔌 Page Object Model</div>
-          <div style="font-size:12.5px;color:var(--text-secondary);line-height:1.6;">
-            Organização dos testes em classes que representam as páginas da aplicação,
-            centralizando seletores e ações — facilita manutenção quando a UI muda.
-          </div>
-        </div>
-
-      </div>
-
-      <!-- EXEMPLO DE TESTE -->
-      <p style="font-size:12px;text-transform:uppercase;letter-spacing:.7px;font-weight:700;color:var(--text-muted);margin-bottom:14px;">Exemplo de teste executado — fluxo de login</p>
-      <div class="code-block">
-<span class="comment">// tests/login.spec.ts</span>
-<span class="cmd">import</span> { test, expect } from <span class="str">'@playwright/test'</span>;
-
-test.<span class="cmd">describe</span>(<span class="str">'Login — cenários validados'</span>, () => {
-
-  test(<span class="str">'deve autenticar com credenciais válidas'</span>, <span class="cmd">async</span> ({ page }) => {
-    <span class="cmd">await</span> page.goto(<span class="str">'/login'</span>);
-    <span class="cmd">await</span> page.getByLabel(<span class="str">'E-mail'</span>).fill(<span class="str">'usuario@empresa.com'</span>);
-    <span class="cmd">await</span> page.getByLabel(<span class="str">'Senha'</span>).fill(<span class="str">'senhaSegura123'</span>);
-    <span class="cmd">await</span> page.getByRole(<span class="str">'button'</span>, { name: <span class="str">'Entrar'</span> }).click();
-    <span class="comment">// Playwright aguarda o redirect automaticamente</span>
-    <span class="cmd">await</span> expect(page).toHaveURL(<span class="str">'/dashboard'</span>);
-    <span class="cmd">await</span> expect(page.getByText(<span class="str">'Bem-vindo'</span>)).toBeVisible();
-  });
-
-  test(<span class="str">'deve exibir erro com senha incorreta'</span>, <span class="cmd">async</span> ({ page }) => {
-    <span class="cmd">await</span> page.goto(<span class="str">'/login'</span>);
-    <span class="cmd">await</span> page.getByLabel(<span class="str">'Senha'</span>).fill(<span class="str">'errada'</span>);
-    <span class="cmd">await</span> page.getByRole(<span class="str">'button'</span>, { name: <span class="str">'Entrar'</span> }).click();
-    <span class="cmd">await</span> expect(page.getByRole(<span class="str">'alert'</span>)).toContainText(<span class="str">'Credenciais inválidas'</span>);
-  });
-
-});
-      </div>
-
-      <!-- TABELA DE RESULTADOS -->
-      <p style="font-size:12px;text-transform:uppercase;letter-spacing:.7px;font-weight:700;color:var(--text-muted);margin:24px 0 14px;">Resultado dos testes executados</p>
-      <table>
-        <thead>
-          <tr>
-            <th>Suíte de Testes</th>
-            <th>Browser</th>
-            <th>Cenários</th>
-            <th>Passou</th>
-            <th>Falhou</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Login &amp; Autenticação</td>
-            <td>Chromium</td>
-            <td>8</td>
-            <td>8</td>
-            <td>0</td>
-            <td><span class="severity sev-low">✅ Passou</span></td>
-          </tr>
-          <tr>
-            <td>Login &amp; Autenticação</td>
-            <td>Firefox</td>
-            <td>8</td>
-            <td>8</td>
-            <td>0</td>
-            <td><span class="severity sev-low">✅ Passou</span></td>
-          </tr>
-          <tr>
-            <td>Fluxo de Cadastro</td>
-            <td>Chromium</td>
-            <td>6</td>
-            <td>6</td>
-            <td>0</td>
-            <td><span class="severity sev-low">✅ Passou</span></td>
-          </tr>
-          <tr>
-            <td>Validações de Formulário</td>
-            <td>Chromium</td>
-            <td>12</td>
-            <td>11</td>
-            <td>1</td>
-            <td><span class="severity sev-medium">⚠️ Atenção</span></td>
-          </tr>
-          <tr>
-            <td>Navegação e Roteamento</td>
-            <td>WebKit</td>
-            <td>5</td>
-            <td>5</td>
-            <td>0</td>
-            <td><span class="severity sev-low">✅ Passou</span></td>
-          </tr>
-        </tbody>
-      </table>
-
-      <!-- COMANDOS ÚTEIS -->
-      <p style="font-size:12px;text-transform:uppercase;letter-spacing:.7px;font-weight:700;color:var(--text-muted);margin:24px 0 14px;">Comandos utilizados durante os testes</p>
-      <div class="code-block">
-<span class="comment"># Executa todos os testes</span>
-<span class="cmd">npx</span> playwright test
-
-<span class="comment"># Executa somente no Chromium</span>
-<span class="cmd">npx</span> playwright test --project=chromium
-
-<span class="comment"># Abre o Trace Viewer após falha</span>
-<span class="cmd">npx</span> playwright show-trace <span class="branch">test-results/trace.zip</span>
-
-<span class="comment"># Gera o relatório HTML interativo</span>
-<span class="cmd">npx</span> playwright show-report
-
-<span class="comment"># Modo debug — abre o browser visualmente</span>
-<span class="cmd">npx</span> playwright test --headed --debug
-      </div>
-
-      <div class="callout callout-success" style="margin-top:16px;">
-        <span class="callout-icon">🎭</span>
-        <div>
-          <strong>Por que Playwright e não Cypress?</strong>
-          O Playwright oferece suporte nativo a múltiplos browsers (incluindo Safari/WebKit), isolamento real de contexto entre testes,
-          e API mais moderna com <code>async/await</code> nativo — ideal para aplicações com autenticação complexa e múltiplas abas.
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-</main>
-
-<!-- ══════════════════════════════════════════
-     FOOTER
-══════════════════════════════════════════ -->
-<footer class="report-footer">
-  Gerado em 17/04/2026 · 14:40 &nbsp;|&nbsp; QA Engineering &nbsp;|&nbsp; ISO/IEC/IEEE 29119-3:2021
-</footer>
+</div>
 
 </body>
 </html>
